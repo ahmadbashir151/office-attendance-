@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Attendance & Payroll</title>
+    <title>Analytix Global</title>
     <style>
         :root { 
             --bg-main: #0f172a; 
@@ -71,7 +71,7 @@
     <div class="modal">
         <button onclick="closeModal()" style="position:absolute; right:20px; top:20px; background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;">&times;</button>
         <h2 id="modalName">Employee</h2>
-        <p id="modalMonth" style="color: var(--primary);"></p>
+        <p id="modalMonth" style="color: var(--primary); font-weight: bold;"></p>
         <div class="stat-grid">
             <div class="stat-box"><span class="stat-val" id="mPresent">0</span><span>Days</span></div>
             <div class="stat-box"><span class="stat-val" id="mLate" style="color:var(--accent-amber)">0</span><span>Lates</span></div>
@@ -87,16 +87,16 @@
 
 <div id="login-screen" class="login-screen">
     <div class="login-card">
-        <h2>Enterprise Portal</h2>
+        <h2>Analytix Global</h2>
         <button class="btn btn-blue" onclick="authAdmin()">Admin Login</button>
         <div style="margin: 15px 0; color: var(--text-gray);">OR</div>
-        <button class="btn btn-secondary" style="background:#059669" onclick="showPanel('employee-panel')">Employee Kiosk</button>
+        <button class="btn btn-secondary" style="background:#059669" onclick="showPanel('employee-panel')">Employees</button>
     </div>
 </div>
 
 <div id="admin-panel" class="container">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
-        <h2>Admin Dashboard</h2>
+        <h2>Admin Panel</h2>
         <div style="display:flex; gap:10px;">
             <select id="monthSelector" style="width:auto; margin:0;" onchange="refreshAdminData()"></select>
             <button class="act-btn" onclick="location.reload()">Logout</button>
@@ -105,7 +105,7 @@
     
     <div class="grid">
         <div class="card">
-            <h3>Add Staff</h3>
+            <h3>Add Employee</h3>
             <input type="text" id="admName" placeholder="Name">
             <input type="number" id="admRate" placeholder="Daily Rate">
             <button class="btn btn-blue" onclick="addEmployee()">Register</button>
@@ -120,7 +120,7 @@
     </div>
 
     <div class="card">
-        <h3>Live Activity</h3>
+        <h3 id="activityTitle">Live Activity</h3>
         <table id="logTable">
             <thead><tr><th>Date</th><th>Name</th><th>Status</th><th>Time</th></tr></thead>
             <tbody></tbody>
@@ -130,7 +130,7 @@
 
 <div id="employee-panel" class="container">
     <div class="login-card">
-        <h2>Staff Kiosk</h2>
+        <h2>Employees</h2>
         <select id="empSelect" onfocus="loadEmployeesForSelection()"></select>
         <div style="display:flex; gap:10px">
             <button class="btn btn-blue" onclick="clockAction('In')">Clock In</button>
@@ -178,14 +178,15 @@
     }
 
     async function refreshAdminData() {
-        const month = document.getElementById('monthSelector').value;
+        const selectedMonth = document.getElementById('monthSelector').value;
         const emps = await api('employees') || {};
         const logs = await api('logs') || {};
+        
+        // 1. Update Payroll Table
         const pBody = document.querySelector('#payrollTable tbody');
         pBody.innerHTML = '';
-
         Object.values(emps).forEach(emp => {
-            const empLogs = Object.values(logs).filter(l => l.empId == emp.id && l.month === month);
+            const empLogs = Object.values(logs).filter(l => l.empId == emp.id && l.month === selectedMonth);
             const present = [...new Set(empLogs.filter(l => l.type === 'In' || l.type === 'Late').map(l => l.date))].length;
             const lates = empLogs.filter(l => l.type === 'Late').length;
             const salary = (present - Math.floor(lates / 2)) * emp.rate;
@@ -202,11 +203,28 @@
             </tr>`;
         });
 
+        // 2. Update Live Activity Feed (FILTERED)
+        document.getElementById('activityTitle').innerText = `Logs for ${selectedMonth}`;
         const lBody = document.querySelector('#logTable tbody');
         lBody.innerHTML = '';
-        Object.values(logs).reverse().slice(0, 10).forEach(l => {
-            lBody.innerHTML += `<tr><td>${l.date}</td><td>${l.name}</td><td><span class="badge ${getBadge(l.type)}">${l.type}</span></td><td>${l.time}</td></tr>`;
-        });
+        
+        // Get logs, filter by month, and sort by date/time (newest first)
+        const logEntries = Object.values(logs)
+            .filter(log => log.month === selectedMonth)
+            .sort((a, b) => new Date(b.date + ' ' + b.time) - new Date(a.date + ' ' + a.time));
+
+        if (logEntries.length === 0) {
+            lBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px;">No records found for this month.</td></tr>';
+        } else {
+            logEntries.forEach(l => {
+                lBody.innerHTML += `<tr>
+                    <td>${l.date}</td>
+                    <td>${l.name}</td>
+                    <td><span class="badge ${getBadge(l.type)}">${l.type}</span></td>
+                    <td>${l.time}</td>
+                </tr>`;
+            });
+        }
     }
 
     async function viewReport(id) {
