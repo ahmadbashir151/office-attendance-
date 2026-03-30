@@ -3,199 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Attendance & Payroll v6.0 (Unified Dark Theme)</title>
+    <title>Enterprise Attendance & Payroll</title>
     <style>
         :root { 
-            --glass-base: rgba(0, 0, 0, 0.75); /* Deep translucent black for tables/forms */
-            --glass-modal: rgba(10, 10, 10, 0.9); /* Darker, focused modal background */
+            --bg-main: #0f172a; 
+            --card-bg: #1e293b; 
+            --primary: #3b82f6; 
+            --border: #334155;
             --text-light: #ffffff; 
-            --text-gray: #a1a1aa; 
-            --border-light: rgba(255, 255, 255, 0.05); 
-            --border-focus: rgba(255, 255, 255, 0.1); 
-            
-            /* Enterprise Accents */
-            --accent-blue: #3b82f6; /* Save / Clock In */
-            --accent-amber: #f59e0b; /* Late */
-            --accent-red: #ef4444; /* Absent / Delete */
+            --text-gray: #94a3b8; 
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --accent-green: #10b981;
         }
         
         body { 
-            font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+            font-family: 'Inter', system-ui, sans-serif; 
             margin: 0; 
+            background-color: var(--bg-main); 
             color: var(--text-light); 
             min-height: 100vh;
         }
-        
-        /* UNIFIED BACKGROUND LOGIC */
-        body.admin-bg { 
-            /* Sleek Executive Office scene for Admin */
-            background: url('image_1.png') no-repeat center center fixed; 
-            background-size: cover; 
-        }
-        
-        body.employee-bg { 
-            /* Collaborative Co-working scene for Kiosk */
-            background: url('image_2.png') no-repeat center center fixed; 
-            background-size: cover; 
-        }
 
-        /* Subtle cloud sync notification */
-        #sync-status { position: fixed; top: 15px; right: 15px; padding: 6px 12px; border-radius: 20px; font-size: 0.7rem; display: none; background: rgba(254, 243, 199, 0.8); color: #92400e; z-index: 1000; backdrop-filter: blur(2px); }
+        #sync-status { position: fixed; top: 15px; right: 15px; padding: 6px 12px; border-radius: 20px; font-size: 0.7rem; display: none; background: #fef3c7; color: #92400e; z-index: 1000; }
         
-        /* Dark mode login card */
-        .login-card { background: var(--glass-base); padding: 40px; border-radius: 16px; backdrop-filter: blur(10px); border: 1px solid var(--border-light); text-align: center; width: 380px; margin: 80px auto; }
+        .container { padding: 20px; max-width: 1200px; margin: auto; display: none; margin-top: 20px; }
+        .grid { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 20px; }
         
-        /* Glassmorphism content containers */
-        .container { padding: 30px; max-width: 1250px; margin: auto; display: none; margin-top: 50px; margin-bottom: 50px; position: relative; z-index: 100; /* Important for button clicks on mobile */ }
-        .grid { display: grid; grid-template-columns: 1fr 2fr; gap: 25px; margin-bottom: 25px; }
+        .card { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border); }
+        .card h3 { margin-top: 0; color: var(--text-light); }
         
-        /* Glassmorphism content cards */
-        .card { background: var(--glass-base); padding: 25px; border-radius: 12px; backdrop-filter: blur(8px); border: 1px solid var(--border-light); }
-        .card h3 { margin-top: 0; color: var(--text-light); font-weight: 600;}
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; background: #0f172a; color: white; }
         
-        /* DARK MODE FORM ELEMENTS */
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid var(--border-focus); border-radius: 8px; box-sizing: border-box; font-size: 1rem; background: rgba(255, 255, 255, 0.05); color: var(--text-light); transition: border-color 0.2s; }
-        input:focus, select:focus { border-color: var(--accent-blue); outline: none; }
+        .btn { padding: 14px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%; color: white; margin-top: 10px; }
+        .btn-blue { background: var(--primary); }
+        .btn-secondary { background: #334155; }
         
-        /* BUTTONS - DARK MODE */
-        .btn { padding: 14px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%; color: white; margin-top: 10px; transition: 0.2s, transform 0.1s; }
-        .btn:active { transform: scale(0.98); }
-        
-        .btn-blue { background: var(--accent-blue); }
-        .btn-secondary { background: rgba(255, 255, 255, 0.1); color: var(--text-light); border: 1px solid var(--border-focus); }
-        
-        /* Table Ghost/Outline action buttons */
-        .btn-ghost-view { background: transparent; border: 1px solid #3b82f6; color: #3b82f6; padding: 5px 8px; border-radius: 6px; font-size: 0.65rem; cursor: pointer; }
-        .btn-ghost-absent { background: transparent; border: 1px solid var(--accent-amber); color: var(--accent-amber); padding: 5px 8px; border-radius: 6px; font-size: 0.65rem; cursor: pointer; }
-        .btn-ghost-del { background: transparent; border: 1px solid var(--accent-red); color: var(--accent-red); padding: 5px 8px; border-radius: 6px; font-size: 0.65rem; cursor: pointer; }
-        
-        /* TABLES - DARK MODE */
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: transparent; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.03); color: var(--text-gray); }
-        th { background: rgba(255, 255, 255, 0.02); font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; font-weight: 500;}
-        strong { color: var(--text-light); }
-        
-        /* BADGES */
-        .badge { padding: 4px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase;}
-        .badge-in { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
-        .badge-late { background: rgba(245, 158, 11, 0.1); color: var(--accent-amber); }
-        .badge-absent { background: rgba(239, 68, 68, 0.1); color: var(--accent-red); }
-        .badge-out { background: rgba(255, 255, 255, 0.05); color: var(--text-gray); }
+        .act-btn { padding: 5px 8px; border-radius: 4px; font-size: 0.7rem; border: 1px solid var(--border); cursor: pointer; color: white; background: transparent; margin-right: 4px; }
 
-        /* Focused Popup Modal */
-        #modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
-        .modal { background: var(--glass-modal); width: 90%; max-width: 800px; max-height: 85vh; border-radius: 16px; padding: 30px; overflow-y: auto; position: relative; border: 1px solid var(--border-light); }
-        .close-modal { position: absolute; top: 20px; right: 20px; font-size: 1.5rem; cursor: pointer; color: var(--text-gray); }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); color: var(--text-gray); font-size: 0.9rem; }
+        th { color: var(--text-light); text-transform: uppercase; font-size: 0.75rem; }
+        
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; }
+        .badge-in { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); }
+        .badge-late { background: rgba(245, 158, 11, 0.2); color: var(--accent-amber); }
+        .badge-absent { background: rgba(239, 68, 68, 0.2); color: var(--accent-red); }
 
-        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
-        .stat-box { padding: 15px; border-radius: 10px; border: 1px solid var(--border-light); text-align: center; background: rgba(255, 255, 255, 0.02); }
-        .stat-val { font-size: 1.2rem; font-weight: bold; display: block; color: var(--text-light); }
-        .stat-lbl { font-size: 0.65rem; color: var(--text-gray); text-transform: uppercase; }
+        #modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; z-index: 2000; justify-content: center; align-items: center; }
+        .modal { background: #1e293b; width: 90%; max-width: 700px; max-height: 80vh; border-radius: 16px; padding: 25px; overflow-y: auto; border: 1px solid var(--border); position: relative; }
+        
+        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 15px 0; }
+        .stat-box { padding: 12px; border-radius: 10px; border: 1px solid var(--border); text-align: center; background: #0f172a; }
+        .stat-val { font-size: 1.1rem; font-weight: bold; display: block; }
 
-        /* Dashboard Month Filter */
-        .header-actions { display: flex; gap: 10px; align-items: center; }
-        .month-filter { background: rgba(255, 255, 255, 0.05); padding: 8px 15px; border-radius: 8px; border: 1px solid var(--border-focus); font-weight: bold; cursor: pointer; color: var(--text-light); }
+        .login-screen { text-align: center; margin-top: 100px; }
+        .login-card { background: var(--card-bg); padding: 40px; border-radius: 16px; border: 1px solid var(--border); width: 350px; margin: auto; }
 
-        @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } .stat-grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } .stat-grid { grid-template-columns: 1fr 1fr; } }
     </style>
 </head>
-<body id="master-body" class="admin-bg"> <div id="sync-status">☁️ CLOUD SYNC ACTIVE</div>
+<body>
+
+<div id="sync-status">☁️ SYNCING...</div>
 
 <div id="modal-overlay">
     <div class="modal">
-        <span class="close-modal" onclick="closeModal()">&times;</span>
-        <h2 id="modalName" style="color:var(--text-light);">Employee Report</h2>
-        <p id="modalMonth" style="color: var(--accent-blue); font-weight: bold;"></p>
+        <button onclick="closeModal()" style="position:absolute; right:20px; top:20px; background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;">&times;</button>
+        <h2 id="modalName">Employee</h2>
+        <p id="modalMonth" style="color: var(--primary);"></p>
         <div class="stat-grid">
-            <div class="stat-box"><span class="stat-val" id="mPresent">0</span><span class="stat-lbl">Days Present</span></div>
-            <div class="stat-box"><span class="stat-val" id="mLate" style="color:var(--accent-amber)">0</span><span class="stat-lbl">Total Lates</span></div>
-            <div class="stat-box"><span class="stat-val" id="mAbsent" style="color:var(--accent-red)">0</span><span class="stat-lbl">Total Absents</span></div>
-            <div class="stat-box" style="background: rgba(59, 130, 246, 0.05);"><span class="stat-val" id="mSalary" style="color:var(--accent-blue)">$0</span><span class="stat-lbl">Monthly Total</span></div>
+            <div class="stat-box"><span class="stat-val" id="mPresent">0</span><span>Days</span></div>
+            <div class="stat-box"><span class="stat-val" id="mLate" style="color:var(--accent-amber)">0</span><span>Lates</span></div>
+            <div class="stat-box"><span class="stat-val" id="mAbsent" style="color:var(--accent-red)">0</span><span>Absents</span></div>
+            <div class="stat-box"><span class="stat-val" id="mSalary" style="color:var(--accent-green)">$0</span><span>Total</span></div>
         </div>
         <table id="modalLogTable">
-            <thead><tr><th>Date</th><th>Action Status</th><th>Exact Time</th></tr></thead>
+            <thead><tr><th>Date</th><th>Status</th><th>Time</th></tr></thead>
             <tbody></tbody>
         </table>
     </div>
 </div>
 
-<div id="login-screen">
+<div id="login-screen" class="login-screen">
     <div class="login-card">
-        <h2>Enterprise Attendance</h2>
-        <p>Payroll & Kiosk System v6.0</p>
-        <button class="btn btn-blue" onclick="authAdmin()">Access Admin Control</button>
-        <div style="margin: 15px 0; color: var(--text-gray);">— OR —</div>
-        <button class="btn btn-secondary" style="background: #059669; color: white;" onclick="setEmployeePanel()">Open Employee Kiosk</button>
+        <h2>Enterprise Portal</h2>
+        <button class="btn btn-blue" onclick="authAdmin()">Admin Login</button>
+        <div style="margin: 15px 0; color: var(--text-gray);">OR</div>
+        <button class="btn btn-secondary" style="background:#059669" onclick="showPanel('employee-panel')">Employee Kiosk</button>
     </div>
 </div>
 
 <div id="admin-panel" class="container">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
-        <h1 style="color: var(--text-light);">Dashboard</h1>
-        <div class="header-actions">
-            <select id="monthSelector" class="month-filter" onchange="refreshAdminData()"></select>
-            <button class="btn btn-blue" style="width:auto; padding: 8px 15px; margin:0; border: 1px solid var(--border-focus); background:transparent;" onclick="location.reload()">System Logout</button>
+        <h2>Admin Dashboard</h2>
+        <div style="display:flex; gap:10px;">
+            <select id="monthSelector" style="width:auto; margin:0;" onchange="refreshAdminData()"></select>
+            <button class="act-btn" onclick="location.reload()">Logout</button>
         </div>
     </div>
     
     <div class="grid">
         <div class="card">
-            <h3>Add New Employee</h3>
-            <label style="color: var(--text-gray); font-size: 0.8rem;">Full Name</label>
-            <input type="text" id="admName" placeholder="e.g., John Smith">
-            <label style="color: var(--text-gray); font-size: 0.8rem;">Daily Salary ($)</label>
-            <input type="number" id="admRate" placeholder="e.g., 50.00">
-            <button class="btn btn-blue" onclick="addEmployee()">Register Staff Member</button>
+            <h3>Add Staff</h3>
+            <input type="text" id="admName" placeholder="Name">
+            <input type="number" id="admRate" placeholder="Daily Rate">
+            <button class="btn btn-blue" onclick="addEmployee()">Register</button>
         </div>
-
         <div class="card">
-            <h3>Monthly Payroll Overview</h3>
+            <h3>Payroll Summary</h3>
             <table id="payrollTable">
-                <thead>
-                    <tr>
-                        <th>Employee</th>
-                        <th>Present</th>
-                        <th>Salary Due</th>
-                        <th>System Actions</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>Name</th><th>Work</th><th>Salary</th><th>Action</th></tr></thead>
                 <tbody></tbody>
             </table>
         </div>
     </div>
 
     <div class="card">
-        <h3>Live Attendance Activity Feed</h3>
+        <h3>Live Activity</h3>
         <table id="logTable">
-            <thead><tr><th>Log Date</th><th>Employee Name</th><th>Action Type</th><th>Log Time</th></tr></thead>
+            <thead><tr><th>Date</th><th>Name</th><th>Status</th><th>Time</th></tr></thead>
             <tbody></tbody>
         </table>
     </div>
 </div>
 
 <div id="employee-panel" class="container">
-    <div class="login-card" style="width: 450px; margin-top: 50px;">
-        <h1>Staff Kiosk</h1>
-        <p style="color: var(--text-gray);">Clock in window is 8:00 PM - 8:15 PM</p>
+    <div class="login-card">
+        <h2>Staff Kiosk</h2>
         <select id="empSelect" onfocus="loadEmployeesForSelection()"></select>
         <div style="display:flex; gap:10px">
-            <button class="btn btn-blue" onclick="clockAction('In')">✅ Clock In</button>
-            <button class="btn btn-secondary" onclick="clockAction('Out')">⚠️ Clock Out</button>
+            <button class="btn btn-blue" onclick="clockAction('In')">Clock In</button>
+            <button class="btn btn-secondary" onclick="clockAction('Out')">Clock Out</button>
         </div>
-        <button onclick="location.reload()" style="background:none; border:none; color:var(--text-gray); margin-top:25px; cursor:pointer;">← Back to Access Panel</button>
+        <button onclick="location.reload()" style="background:none; border:none; color:var(--text-gray); margin-top:20px; cursor:pointer;">← Exit</button>
     </div>
 </div>
 
 <script>
-    // System Config
     const CLOUD_URL = "https://office-attendance-system-d04f9-default-rtdb.firebaseio.com/";
 
-    // Generic date key helper
-    function getMonthKey(dateObj = new Date()) {
-        return dateObj.toLocaleString('default', { month: 'long', year: 'numeric' });
+    function getMonthKey(d = new Date()) {
+        return d.toLocaleString('default', { month: 'long', year: 'numeric' });
     }
 
-    // Advanced API handler
     async function api(path, method = 'GET', body = null) {
         document.getElementById('sync-status').style.display = 'block';
         try {
@@ -205,11 +156,112 @@
             const data = await response.json();
             document.getElementById('sync-status').style.display = 'none';
             return data;
-        } catch (e) { document.getElementById('sync-status').innerText = "⚠️ SYSTEM ERROR"; }
+        } catch (e) { 
+            document.getElementById('sync-status').innerText = "Error";
+            return null;
+        }
     }
 
-    // Dashboard Month Filter Init
-    function initMonthSelector() {
+    async function addEmployee() {
+        const name = document.getElementById('admName').value;
+        const rate = document.getElementById('admRate').value;
+        if (!name || !rate) return alert("Fill all fields");
+        await api(`employees/${Date.now()}`, 'PUT', { id: Date.now(), name, rate: parseFloat(rate) });
+        document.getElementById('admName').value = ""; document.getElementById('admRate').value = "";
+        refreshAdminData();
+    }
+
+    async function deleteEmployee(id, name) {
+        if (!confirm(`Delete ${name}?`)) return;
+        await api(`employees/${id}`, 'DELETE');
+        refreshAdminData();
+    }
+
+    async function refreshAdminData() {
+        const month = document.getElementById('monthSelector').value;
+        const emps = await api('employees') || {};
+        const logs = await api('logs') || {};
+        const pBody = document.querySelector('#payrollTable tbody');
+        pBody.innerHTML = '';
+
+        Object.values(emps).forEach(emp => {
+            const empLogs = Object.values(logs).filter(l => l.empId == emp.id && l.month === month);
+            const present = [...new Set(empLogs.filter(l => l.type === 'In' || l.type === 'Late').map(l => l.date))].length;
+            const lates = empLogs.filter(l => l.type === 'Late').length;
+            const salary = (present - Math.floor(lates / 2)) * emp.rate;
+
+            pBody.innerHTML += `<tr>
+                <td onclick="viewReport('${emp.id}')" style="cursor:pointer;color:var(--primary)">${emp.name}</td>
+                <td>${present} Days</td>
+                <td>$${salary.toFixed(2)}</td>
+                <td>
+                    <button class="act-btn" onclick="viewReport('${emp.id}')">👁️</button>
+                    <button class="act-btn" onclick="markAbsent('${emp.id}', '${emp.name}')">❌</button>
+                    <button class="act-btn" onclick="deleteEmployee('${emp.id}', '${emp.name}')">🗑️</button>
+                </td>
+            </tr>`;
+        });
+
+        const lBody = document.querySelector('#logTable tbody');
+        lBody.innerHTML = '';
+        Object.values(logs).reverse().slice(0, 10).forEach(l => {
+            lBody.innerHTML += `<tr><td>${l.date}</td><td>${l.name}</td><td><span class="badge ${getBadge(l.type)}">${l.type}</span></td><td>${l.time}</td></tr>`;
+        });
+    }
+
+    async function viewReport(id) {
+        const month = document.getElementById('monthSelector').value;
+        const emps = await api('employees') || {};
+        const logs = await api('logs') || {};
+        const empLogs = Object.values(logs).filter(l => l.empId == id && l.month === month).reverse();
+        
+        const present = [...new Set(empLogs.filter(l => l.type === 'In' || l.type === 'Late').map(l => l.date))].length;
+        const lates = empLogs.filter(l => l.type === 'Late').length;
+        const absents = empLogs.filter(l => l.type === 'Absent').length;
+        const salary = (present - Math.floor(lates / 2)) * emps[id].rate;
+
+        document.getElementById('modalName').innerText = emps[id].name;
+        document.getElementById('modalMonth').innerText = month;
+        document.getElementById('mPresent').innerText = present;
+        document.getElementById('mLate').innerText = lates;
+        document.getElementById('mAbsent').innerText = absents;
+        document.getElementById('mSalary').innerText = `$${salary.toFixed(2)}`;
+
+        document.querySelector('#modalLogTable tbody').innerHTML = empLogs.map(l => 
+            `<tr><td>${l.date}</td><td><span class="badge ${getBadge(l.type)}">${l.type}</span></td><td>${l.time}</td></tr>`
+        ).join('');
+        document.getElementById('modal-overlay').style.display = 'flex';
+    }
+
+    async function clockAction(type) {
+        const id = document.getElementById('empSelect').value;
+        if (!id) return alert("Select Name");
+        const emps = await api('employees');
+        const now = new Date();
+        const hr = now.getHours();
+        const min = now.getMinutes();
+        let finalType = type;
+
+        if (type === 'In') {
+            const isLate = (hr === 20 && min > 15) || (hr > 20) || (hr >= 0 && hr < 4);
+            if (isLate) finalType = 'Late';
+        }
+
+        await api('logs', 'POST', {
+            empId: id, name: emps[id].name, type: finalType,
+            date: now.toLocaleDateString(), month: getMonthKey(now),
+            time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        });
+        alert("Success!");
+    }
+
+    async function markAbsent(empId, empName) {
+        if (!confirm(`Mark ${empName} absent?`)) return;
+        await api('logs', 'POST', { empId, name: empName, type: 'Absent', date: new Date().toLocaleDateString(), month: getMonthKey(), time: 'MANUAL' });
+        refreshAdminData();
+    }
+
+    function initMonths() {
         const sel = document.getElementById('monthSelector');
         const now = new Date();
         sel.innerHTML = "";
@@ -220,147 +272,27 @@
         }
     }
 
-    // ADD EMPLOYEE
-    async function addEmployee() {
-        const name = document.getElementById('admName').value;
-        const rate = document.getElementById('admRate').value;
-        if (!name || !rate) return alert("All fields are mandatory.");
-        await api(`employees/${Date.now()}`, 'PUT', { id: Date.now(), name, rate: parseFloat(rate) });
-        document.getElementById('admName').value = ""; document.getElementById('admRate').value = "";
-        refreshAdminData();
-    }
-
-    // DELETE EMPLOYEE
-    async function deleteEmployee(id, name) {
-        if (!confirm(`This will permanently remove ${name} from the active database. Proceed?`)) return;
-        await api(`employees/${id}`, 'DELETE');
-        refreshAdminData();
-    }
-
-    // MAIN REFRESH LOGIC (Admin)
-    async function refreshAdminData() {
-        const selectedMonth = document.getElementById('monthSelector').value;
-        const emps = await api('employees') || {};
-        const logs = await api('logs') || {};
-        const pBody = document.querySelector('#payrollTable tbody');
-        pBody.innerHTML = '';
-
-        Object.values(emps).forEach(emp => {
-            const empLogs = Object.values(logs).filter(l => l.empId == emp.id && l.month === selectedMonth);
-            const presentDays = [...new Set(empLogs.filter(l => l.type === 'In' || l.type === 'Late').map(l => l.date))].length;
-            const lateCount = empLogs.filter(l => l.type === 'Late').length;
-            const penaltyDays = Math.floor(lateCount / 2);
-            const finalSalary = (presentDays - penaltyDays) * emp.rate;
-
-            pBody.innerHTML += `<tr>
-                <td><strong style="cursor:pointer;color:var(--text-light)" onclick="viewReport('${emp.id}')">${emp.name} 👁️</strong></td>
-                <td>${presentDays} Days</td>
-                <td><strong>$${finalSalary.toFixed(2)}</strong></td>
-                <td style="display:flex; gap:5px;">
-                    <button class="btn-ghost-view" onclick="viewReport('${emp.id}')">Details</button>
-                    <button class="btn-ghost-absent" onclick="markAbsent('${emp.id}', '${emp.name}')">Absent</button>
-                    <button class="btn-ghost-del" onclick="deleteEmployee('${emp.id}', '${emp.name}')">Del</button>
-                </td>
-            </tr>`;
-        });
-
-        // RECENT LOG FEED
-        const lBody = document.querySelector('#logTable tbody');
-        lBody.innerHTML = '';
-        Object.values(logs).reverse().slice(0, 10).forEach(log => {
-            lBody.innerHTML += `<tr><td>${log.date}</td><td>${log.name}</td><td><span class="badge ${getBadgeClass(log.type)}">${log.type}</span></td><td>${log.time}</td></tr>`;
-        });
-    }
-
-    // INDIVIDUAL MODAL REPORT
-    async function viewReport(id) {
-        const selectedMonth = document.getElementById('monthSelector').value;
-        const emps = await api('employees') || {};
-        const logs = await api('logs') || {};
-        const empLogs = Object.values(logs).filter(l => l.empId == id && l.month === selectedMonth).reverse();
-        
-        const presentDays = [...new Set(empLogs.filter(l => l.type === 'In' || l.type === 'Late').map(l => l.date))].length;
-        const lateCount = empLogs.filter(l => l.type === 'Late').length;
-        const absentCount = empLogs.filter(l => l.type === 'Absent').length;
-        const penaltyDays = Math.floor(lateCount / 2);
-        const finalSalary = (presentDays - penaltyDays) * emps[id].rate;
-
-        document.getElementById('modalName').innerText = emps[id].name;
-        document.getElementById('modalMonth').innerText = `${selectedMonth} Monthly Summary`;
-        document.getElementById('mPresent').innerText = presentDays;
-        document.getElementById('mLate').innerText = lateCount;
-        document.getElementById('mAbsent').innerText = absentCount;
-        document.getElementById('mSalary').innerText = `$${finalSalary.toFixed(2)}`;
-
-        document.querySelector('#modalLogTable tbody').innerHTML = empLogs.map(l => 
-            `<tr><td>${l.date}</td><td><span class="badge ${getBadgeClass(l.type)}">${l.type}</span></td><td>${l.time}</td></tr>`
-        ).join('');
-        document.getElementById('modal-overlay').style.display = 'flex';
-    }
-
-    // BADGE CSS LOGIC
-    function getBadgeClass(t) { return t==='In'?'badge-in':t==='Late'?'badge-late':t==='Absent'?'badge-absent':'badge-out'; }
-    function closeModal() { document.getElementById('modal-overlay').style.display = 'none'; }
-
-    // EMPLOYEE KIOSK LOGIC
-    async function clockAction(type) {
-        const empId = document.getElementById('empSelect').value;
-        if (!empId) return alert("Name selection is required.");
-        const emps = await api('employees');
-        const now = new Date();
-        const hour = now.getHours();
-        const min = now.getMinutes();
-        let finalType = type;
-
-        // LATE CHECK: shift begins at 8PM (20:00). Fine until 8:15.
-        if (type === 'In') {
-            // LATE if clocking in between 8:16 PM and 3:59 AM
-            const isLate = (hour === 20 && min > 15) || (hour > 20) || (hour >= 0 && hour < 4);
-            if (isLate) finalType = 'Late';
-        }
-
-        await api('logs', 'POST', {
-            empId, name: emps[empId].name, type: finalType,
-            date: now.toLocaleDateString(),
-            month: getMonthKey(now),
-            time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        });
-        alert(`Recorded as ${finalType}! Shift ends when logged out.`);
-    }
-
-    // MANUAL ABSENT ENTRY
-    async function markAbsent(empId, empName) {
-        if (!confirm(`Mark ${empName} Absent for today's shift?`)) return;
-        await api('logs', 'POST', { empId, name: empName, type: 'Absent', date: new Date().toLocaleDateString(), month: getMonthKey(), time: 'MANUAL SYSTEM ENTRY' });
-        refreshAdminData();
-    }
-
-    // KIOSK INITIALIZATION
     async function loadEmployeesForSelection() {
         const emps = await api('employees') || {};
-        document.getElementById('empSelect').innerHTML = '<option value="">-- Choose Name from List --</option>' + 
+        document.getElementById('empSelect').innerHTML = '<option value="">-- Select --</option>' + 
             Object.values(emps).map(e => `<option value="${e.id}">${e.name}</option>`).join('');
     }
 
-    // PORTAL AND BACKGROUND MANAGEMENT
-    function authAdmin() { if (prompt("Master Password:") === "Laptop96$$") { showPanel('admin-panel', 'admin-bg'); initMonthSelector(); refreshAdminData(); } }
-    
-    // Custom set function for Employee Panel to handle background
-    function setEmployeePanel() {
-        showPanel('employee-panel', 'employee-bg');
+    function getBadge(t) { return t==='In'?'badge-in':t==='Late'?'badge-late':t==='Absent'?'badge-absent':''; }
+    function closeModal() { document.getElementById('modal-overlay').style.display = 'none'; }
+    function authAdmin() { 
+        if (prompt("Password:") === "admin123") { 
+            showPanel('admin-panel'); 
+            initMonths(); 
+            refreshAdminData(); 
+        } 
     }
-
-    function showPanel(containerId, backgroundClass) {
-        // Switch Background
-        const body = document.getElementById('master-body');
-        body.className = ''; // Reset
-        if(backgroundClass) body.classList.add(backgroundClass);
-
-        // Switch Container
+    
+    function showPanel(id) {
         document.getElementById('login-screen').style.display = 'none';
         document.querySelectorAll('.container').forEach(c => c.style.display = 'none');
-        document.getElementById(containerId).style.display = 'block';
-        if(containerId === 'employee-panel') loadEmployeesForSelection();
+        document.getElementById(id).style.display = 'block';
+        if(id === 'employee-panel') loadEmployeesForSelection();
     }
 </script>
 </body>
